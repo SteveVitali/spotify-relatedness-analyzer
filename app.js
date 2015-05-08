@@ -6,15 +6,11 @@ var port     = process.env.PORT || 3000;
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 
-app.use(express.static(__dirname + '/static/js/third-party'));
-app.use(express.static(__dirname + '/static/js'));
-app.use(express.static(__dirname + '/static/css'));
+app.use(express.static(__dirname + '/static'));
+app.use(express.static(__dirname + '/bower_components'));
 
 require('./routes')(app);
 
 app.listen(port, function () {
   console.log('Listening on', port);
 });
-
-// Expose app
-exports = module.exports = app

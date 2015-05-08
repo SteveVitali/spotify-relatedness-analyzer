@@ -3,10 +3,13 @@ html(lang='en')
   head
     meta(name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1')
     title SongSort
-    link(rel='stylesheet' href='/main.css')
-    link(rel='stylesheet' href='//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css')
-    script(src='//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js')
-    script(src='/underscore.js')
+    link(rel='stylesheet' href='/css/main.css')
+    link(rel='stylesheet' href='/bootstrap/dist/css/bootstrap.min.css')
+    script(src='/jquery/dist/jquery.min.js')
+    script(src='/bootstrap/dist/js/bootstrap.min.js')
+    script(src='/react/JSXTransformer.js')
+    script(src='/react/react.min.js')
+    script(src='/underscore/underscore-min.js')
 
   body#body
     .navbar.navbar-default.navbar-fixed-top(role='navigation')
@@ -19,9 +22,10 @@ html(lang='en')
             li
               a#about.option(href='/')
 
-    #main.container
+    #song-sort
+    script(type='text/jsx' src='/js/app.js')
 
-    #footer
+    footer#footer
       hr
       .container
         small

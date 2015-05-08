@@ -1,0 +1,27 @@
+{
+  "name": "SongSort",
+  "version": "1.0.0",
+  "authors": [
+    "Steve Vitali <svitali@seas.upenn.edu>"
+  ],
+  "moduleType": [
+    "amd",
+    "es6",
+    "globals",
+    "node",
+    "yui"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.3.4",
+    "react": "~0.13.2",
+    "underscore": "~1.8.3"
+  }
+}
