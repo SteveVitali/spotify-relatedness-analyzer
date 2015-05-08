@@ -10,6 +10,8 @@ html(lang='en')
     script(src='/react/JSXTransformer.js')
     script(src='/react/react.min.js')
     script(src='/underscore/underscore-min.js')
+    script(src='/js/spotify.js')
+    script(type='text/jsx' src='/views/song-sort.jsx')
 
   body#body
     .navbar.navbar-default.navbar-fixed-top(role='navigation')
@@ -22,7 +24,7 @@ html(lang='en')
             li
               a#about.option(href='/')
 
-    #song-sort
+    #song-sort.container
     script(type='text/jsx' src='/js/app.js')
 
     footer#footer
