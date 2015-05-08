@@ -1,0 +1,27 @@
+doctype html
+html(lang='en')
+  head
+    meta(name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1')
+    title SongSort
+    link(rel='stylesheet' href='/main.css')
+    link(rel='stylesheet' href='//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css')
+    script(src='//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js')
+    script(src='/underscore.js')
+
+  body#body
+    .navbar.navbar-inverse.navbar-static-top(role='navigation')
+      .container-fluid
+        .navbar-header
+          button.navbar-toggle(type='button', data-toggle='collapse', data-target='#navbar-collapse-items')
+            span.sr-only Toggle navigation
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+        #navbar-collapse-items.collapse.navbar-collapse
+          ul.nav.navbar-nav
+            li
+              a.navbar-brand(rel='home', href='/', title='SongSort') SongSort
+
+    #main-view.container
+      can I get an ayy lmao
+  
