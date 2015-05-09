@@ -38,6 +38,15 @@ var Spotify = {
     );
   },
 
+  fetchRelatedArtists: function(artistId, callback) {
+    this.callSpotify(
+      this.getConfig().spotifyHost + 
+      'v1/artists/' + artistId + '/related-artists',
+      {}, 
+      callback
+    );
+  },
+
   callSpotify: function(url, data, callback) {
     $.ajax(url, {
       dataType: 'json',
@@ -48,5 +57,13 @@ var Spotify = {
       success: callback,
       error: callback
     });
+  },
+
+  getConfig: function() {
+    return {
+      apiKey: '76GAACLUE3U6MTBR9',
+      spotifyHost: 'https://api.spotify.com/',
+      echoNestHost: 'http://developer.echonest.com/'
+    };
   }
 };

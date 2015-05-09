@@ -1,8 +1,15 @@
 var SongSort = React.createClass({
   getInitialState: function() {
     return {
-      tracks: [],
       isAuthorized: Spotify.getAccessToken()
+    };
+  },
+
+  getDefaultProps: function() {
+    return {
+      artistsMap: {},
+      graph: {},
+      count: 0
     };
   },
 
@@ -24,31 +31,61 @@ var SongSort = React.createClass({
   },
 
   showTracks: function(trackData) {
-    var tracks = _.pluck(trackData.items, 'track');
-    this.setState({
-      tracks: this.state.tracks.concat(tracks)
+    this.props.count++;
+    var that = this;
+    _.each(trackData.items, function(item) {
+      var track = item.track;
+
+      _.each(track.artists, function(artist) {
+        if (!(artist.id in that.props.artistsMap)) {
+          that.props.artistsMap[artist.id] = {
+            name: artist.name,
+            tracksMap: {},
+            relatedMap: {}
+          };
+        }
+        that.props.artistsMap[artist.id].tracksMap[track.id] = {
+          name: track.name
+        };
+      });
     });
     this.render();
-    if (trackData.next) {
+    if (trackData.next && this.props.count < 2) {
       Spotify.callSpotify(trackData.next, {}, this.showTracks);
+    } else {
+      this.populateRelatedArtists(this.constructGraph);
     }
   },
 
-  render: function() {
-    var trackTableData = (
-      _.map(this.state.tracks, function(track) {
-        var artists = '';
-        _.each(track.artists, function(artist) {
-          artists += artist.name + ',';
+  constructGraph: function() {
+    console.log('constructing graph');
+  },
+
+  populateRelatedArtists: function(callback) {
+    var that = this;
+    var count = 0;
+    var artistIds = _.keys(this.props.artistsMap);
+
+    _.each(artistIds, function(artistId) {
+      Spotify.fetchRelatedArtists(artistId, function(relateds) {
+        _.each(relateds.artists, function(related) {
+          if (related.id in that.props.artistsMap) {
+            that.props.artistsMap[artistId].relatedMap[related.id] = {
+              name: related.name
+            };
+            that.props.artistsMap[related.id].relatedMap[artistId] = {
+              name: that.props.artistsMap[artistId].name
+            };
+          }
         });
-        return (
-          <tr>
-            <td>{artists.substring(0, artists.length-1)}</td>
-            <td>{track.name}</td>
-          </tr>
-        );
-      })
-    );
+        if (++count == artistIds.length) {
+          callback();
+        }
+      });
+    });
+  },
+
+  render: function() {
     var actionButton = (
       <button className='btn btn-default btn-lg' 
         onClick={this.state.isAuthorized 
@@ -63,11 +100,7 @@ var SongSort = React.createClass({
     return (
       <div>
         {actionButton}
-        <table className="table table-striped">
-          <tdata>
-            {trackTableData}
-          </tdata>
-        </table>
+        <Graph graph={this.props.graph} />
       </div>
     );
   }
