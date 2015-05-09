@@ -21,5 +21,9 @@
     "grunt": "^0.4.5",
     "grunt-bower-install": "^1.6.0",
     "react-tools": "^0.13.2"
+  },
+  "engines": {
+    "node": "0.10.31",
+    "npm": "2.0.0-beta.1"
   }
 }
