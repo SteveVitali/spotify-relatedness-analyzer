@@ -1,7 +1,7 @@
 var Spotify = {
   authorizeUser: function() {
     var client_id = 'ceb07c0171874630bb8c4e9ca615b3bd';
-    var redirect_uri = 'http://localhost:3000';
+    var redirect_uri = document.location.origin;
     var url = 'https://accounts.spotify.com/authorize?client_id=' + 
       client_id +
       '&response_type=token' +
