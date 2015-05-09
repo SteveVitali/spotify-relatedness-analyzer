@@ -4,13 +4,14 @@ var Graph = React.createClass({
       graph: {},
       id: 'graph',
       style:{
-        width: '640px',
-        height: '480px'
+        width: '100%',
+        height: '700px'
       }
     };
   },
 
   render: function() {
+    console.log('graph graph', this.props.graph);
     return React.createElement(
       'div', {
         className: 'container',
@@ -21,6 +22,10 @@ var Graph = React.createClass({
   },
 
   componentDidMount: function() {
+    this.updateGraph();
+  },
+
+  componentDidUpdate: function() {
     this.updateGraph();
   },
 
