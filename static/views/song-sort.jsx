@@ -1,29 +1,28 @@
 var SongSort = React.createClass({
   getInitialState: function() {
     return {
-      tracks: []
+      tracks: [],
+      isAuthorized: Spotify.getAccessToken()
     };
   },
+
   fetchSongs: function() {
-    if (!Spotify.getAccessToken()) {
-      Spotify.authorizeUser();
-    } else {
-      var that = this;
-      Spotify.fetchCurrentUserProfile(function(user) {
-        if (user) {
-          Spotify.fetchSavedTracks(function(data) {
-            if (data) {
-              that.showTracks(data);
-            } else {
-              console.log('Error: no data');
-            }
-          });
-        } else {
-          console.log('Error: could not log in');
-        }
-      });
-    }
+    var that = this;
+    Spotify.fetchCurrentUserProfile(function(user) {
+      if (user) {
+        Spotify.fetchSavedTracks(function(data) {
+          if (data) {
+            that.showTracks(data);
+          } else {
+            console.log('Error: no data');
+          }
+        });
+      } else {
+        console.log('Error: could not log in');
+      }
+    });
   },
+
   showTracks: function(trackData) {
     var tracks = _.pluck(trackData.items, 'track');
     this.setState({
@@ -34,8 +33,8 @@ var SongSort = React.createClass({
       Spotify.callSpotify(trackData.next, {}, this.showTracks);
     }
   },
+
   render: function() {
-    console.log('this.state.tracks', this.state.tracks);
     var trackTableData = (
       _.map(this.state.tracks, function(track) {
         var artists = '';
@@ -50,13 +49,20 @@ var SongSort = React.createClass({
         );
       })
     );
+    var actionButton = (
+      <button className='btn btn-default btn-lg' 
+        onClick={this.state.isAuthorized 
+          ? this.fetchSongs 
+          : Spotify.authorizeUser}>
+        {this.state.isAuthorized 
+          ? 'Fetch Songs' 
+          : 'Login to Spotify'}
+      </button>
+    );
+
     return (
       <div>
-        <button 
-          className='btn btn-default' 
-          onClick={this.fetchSongs}>
-          Fetch Songs
-        </button>
+        {actionButton}
         <table className="table table-striped">
           <tdata>
             {trackTableData}
