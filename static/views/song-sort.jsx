@@ -4,13 +4,15 @@ var SongSort = React.createClass({
       isAuthorized: Spotify.getAccessToken(),
       artistsMap: {},
       graph: {},
-      count: 0
+      count: 0,
+      status: Spotify.getAccessToken() ? 'fetch' : 'login',
+      tracksFetched: 0,
+      tracksTotal: 0
     };
   },
 
   getDefaultProps: function() {
-    return {
-    };
+    return {};
   },
 
   fetchTracks: function() {
@@ -53,14 +55,27 @@ var SongSort = React.createClass({
 
     that.setState({ 
       artistsMap: artistsMap,
-      count: this.state.count + 1
+      tracksFetched: this.state.tracksFetched + trackData.items.length,
+      tracksTotal: trackData.total || this.state.tracksTotal,
+      status: 'fetching'
     });
 
-    if (trackData.next /*&& this.state.count < 2*/) {
+    if (trackData.next) {
       Spotify.callSpotify(trackData.next, {}, this.processTracks);
     } else {
+      this.setState({
+        status: 'fetched'
+      });
       this.populateRelatedArtists(function() {
-        that.constructGraph();
+        that.setState({
+          status: 'graphing'
+        });
+        setTimeout(function() {
+          that.constructGraph();
+          that.setState({
+            status: 'graphed'
+          });
+        }, 250);
       });
     }
   },
@@ -86,10 +101,12 @@ var SongSort = React.createClass({
 
     for (var artistId in this.state.artistsMap) {
       var artist = this.state.artistsMap[artistId];
-
+      var value = _.keys(artist.relatedMap).length;
       nodes.push({
         id: getId(artistId),
-        label: artist.name
+        label: artist.name,
+        value: value * 10,
+        title: artist.name + '(' + value + ' connections)'
       });
       for (var relatedId in artist.relatedMap) {
         var edgeHash = getHash(relatedId, artistId);
@@ -139,17 +156,27 @@ var SongSort = React.createClass({
   },
 
   render: function() {
+    var ratioStr = this.state.tracksFetched + '/' + this.state.tracksTotal;
+    var labelMap = {
+      login: 'Login To Spotify',
+      fetch: 'Fetch Songs',
+      fetching: 'Fetching songs (' + ratioStr + ')',
+      fetched: 'Computing artist relatedness',
+      graphing: 'Constructing network graph...'
+    };
+    var actionMap = {
+      login: Spotify.authorizeUser,
+      fetch: this.fetchTracks
+    };
     var actionButton = (
       <button className='btn btn-default btn-lg' 
-        onClick={this.state.isAuthorized 
-          ? this.fetchTracks 
-          : Spotify.authorizeUser}>
-        {this.state.isAuthorized 
-          ? 'Fetch Songs' 
-          : 'Login to Spotify'}
+        onClick={actionMap[this.state.status]}>
+        {labelMap[this.state.status]}
       </button>
     );
-
+    if (this.state.status =='graphed') {
+      return (<Graph graph={this.state.graph} />);
+    }
     return (
       <div>
         {actionButton}
