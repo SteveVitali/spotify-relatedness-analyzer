@@ -100,13 +100,8 @@ var SongSort = React.createClass({
         graph.addEdge(artistId, relatedId);
       }
     }
-    var visGraph = graph.getVisGraph();
-
-    console.log('graph', graph);
-    console.log('graph for visualizer', visGraph);
-
     this.setState({
-      graph: visGraph
+      graph: graph.getVisGraph()
     });
   },
 
