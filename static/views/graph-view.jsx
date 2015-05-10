@@ -1,4 +1,4 @@
-var Graph = React.createClass({
+var GraphView = React.createClass({
   getDefaultProps: function() {
     return {
       graph: {},
@@ -11,7 +11,6 @@ var Graph = React.createClass({
   },
 
   render: function() {
-    console.log('graph graph', this.props.graph);
     return React.createElement(
       'div', {
         className: 'container',

@@ -21,7 +21,7 @@ var SongSort = React.createClass({
       if (user) {
         Spotify.fetchSavedTracks(function(data) {
           if (data) {
-            that.processTracks(data);
+            that.processTracks(data, 0);
           } else {
             console.log('Error: no data');
           }
@@ -32,7 +32,9 @@ var SongSort = React.createClass({
     });
   },
 
-  processTracks: function(trackData) {
+  processTracks: function(trackData, count) {
+    var SONG_LIMIT_FOR_TESTING = 20;
+
     var artistsMap = this.state.artistsMap;
 
     var that = this;
@@ -60,8 +62,10 @@ var SongSort = React.createClass({
       status: 'fetching'
     });
 
-    if (trackData.next) {
-      Spotify.callSpotify(trackData.next, {}, this.processTracks);
+    if (trackData.next && count < 200) {
+      Spotify.callSpotify(trackData.next, {}, function(data) {
+        that.processTracks(data, count + data.items.length);
+      });
     } else {
       this.setState({
         status: 'fetched'
@@ -81,49 +85,28 @@ var SongSort = React.createClass({
   },
 
   constructGraph: function() {
-    var idCnt = 0;
-    var idMap = {};
-    var getId = function(id) {
-      if (!(id in idMap)) {
-        idMap[id] = ++idCnt;
-      }
-      return idMap[id];
-    }
-    var edgeHashes = {};
-    var getHash = function(from, to) {
-      return to < from 
-        ? to + '+' + from
-        : from + '+' + to;
-    }
-
-    var nodes = [];
-    var edges = [];
-
+    var graph = new Graph();
     for (var artistId in this.state.artistsMap) {
       var artist = this.state.artistsMap[artistId];
       var value = _.keys(artist.relatedMap).length;
-      nodes.push({
-        id: getId(artistId),
-        label: artist.name,
+
+      graph.addNode(artistId, {
+        label: artist.name, 
         value: value * 10,
         title: artist.name + '(' + value + ' connections)'
       });
+
       for (var relatedId in artist.relatedMap) {
-        var edgeHash = getHash(relatedId, artistId);
-        if (!(edgeHash in edgeHashes)) {
-          edges.push({
-            from: getId(artistId),
-            to: getId(relatedId)
-          });
-          edgeHashes[edgeHash] = true;
-        }
+        graph.addEdge(artistId, relatedId);
       }
     }
+    var visGraph = graph.getVisGraph();
+
+    console.log('graph', graph);
+    console.log('graph for visualizer', visGraph);
+
     this.setState({
-      graph: {
-        nodes: nodes,
-        edges: edges
-      }
+      graph: visGraph
     });
   },
 
@@ -161,7 +144,7 @@ var SongSort = React.createClass({
       login: 'Login To Spotify',
       fetch: 'Fetch Songs',
       fetching: 'Fetching songs (' + ratioStr + ')',
-      fetched: 'Computing artist relatedness',
+      fetched: 'Computing artist relatedness...',
       graphing: 'Constructing network graph...'
     };
     var actionMap = {
@@ -175,12 +158,12 @@ var SongSort = React.createClass({
       </button>
     );
     if (this.state.status =='graphed') {
-      return (<Graph graph={this.state.graph} />);
+      return (<GraphView graph={this.state.graph} />);
     }
     return (
       <div>
         {actionButton}
-        <Graph graph={this.state.graph} />
+        <GraphView graph={this.state.graph} />
       </div>
     );
   }
