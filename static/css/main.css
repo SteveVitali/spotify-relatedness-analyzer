@@ -9,3 +9,11 @@
   margin-right:auto;
   text-align:center;
 }
+
+table tr td {
+  text-align: left;
+}
+
+h3.panel-title {
+  text-align: left;
+}

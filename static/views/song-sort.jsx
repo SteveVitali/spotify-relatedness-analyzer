@@ -62,7 +62,7 @@ var SongSort = React.createClass({
       status: 'fetching'
     });
 
-    if (trackData.next && count < 200) {
+    if (trackData.next && count < 500) {
       Spotify.callSpotify(trackData.next, {}, function(data) {
         that.processTracks(data, count + data.items.length);
       });
@@ -79,7 +79,8 @@ var SongSort = React.createClass({
           that.setState({
             status: 'graphed'
           });
-        }, 250);
+          that.computePlaylists();
+        }, 100);
       });
     }
   },
@@ -101,7 +102,34 @@ var SongSort = React.createClass({
       }
     }
     this.setState({
-      graph: graph.getVisGraph()
+      graph: graph,
+      visGraph: graph.getVisGraph()
+    });
+  },
+
+  computePlaylists: function() {
+    var MINIMUM_PLAYLIST_SIZE = 8;
+    var components = this.state.graph.getWeaklyConnectedComponents();
+    var that = this;
+    var playlists = [];
+    _.each(components, function(component) {
+      var playlist = [];
+      _.each(component, function(artistId) {
+        var artist = that.state.artistsMap[artistId];
+        for (var trackId in artist.tracksMap) {
+          var track = artist.tracksMap[trackId];
+          playlist.push({
+            track: track.name,
+            artist: artist.name
+          });
+        }
+      });
+      if (playlist.length >= MINIMUM_PLAYLIST_SIZE) {
+        playlists.push(playlist);
+      }
+    });
+    this.setState({
+      playlists: playlists
     });
   },
 
@@ -152,13 +180,53 @@ var SongSort = React.createClass({
         {labelMap[this.state.status]}
       </button>
     );
-    if (this.state.status =='graphed') {
-      return (<GraphView graph={this.state.graph} />);
+
+    if (this.state.status == 'graphed') {
+      var constructPlaylist = function(playlist) {
+        return _.map(playlist, function(trackData) {
+          return (
+            <tr>
+              <td>{trackData.track}</td>
+              <td>{trackData.artist}</td>
+            </tr>
+          );
+        });
+      }
+      var playlists = _.map(this.state.playlists, function(playlist, index) {
+        var playlistElement = constructPlaylist(playlist);
+        return (
+          <div className="panel panel-default">
+            <div className="panel-heading">
+              <h3 className="panel-title">
+                Playlist {index + 1}
+              </h3>
+            </div>
+            <table className="table table-striped">
+              <tdata>
+                <tr>
+                  <td><strong>Song</strong></td>
+                  <td><strong>Artist</strong></td>
+                </tr>
+                {playlistElement}
+              </tdata>
+            </table>
+          </div>
+        );
+      });
+      console.log('playlists element', playlists);
+      return (
+        <div>
+          <GraphView graph={this.state.visGraph} />
+          <div className="container">
+            {playlists}
+          </div>
+        </div>
+      );
     }
     return (
       <div>
         {actionButton}
-        <GraphView graph={this.state.graph} />
+        <GraphView graph={this.state.visGraph} />
       </div>
     );
   }
