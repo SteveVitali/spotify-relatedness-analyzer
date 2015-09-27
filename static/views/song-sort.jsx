@@ -113,7 +113,6 @@ var SongSort = React.createClass({
     for (var artistId in this.state.artistsMap) {
       var artist = this.state.artistsMap[artistId];
       if (!artistInPlaylist(artist)) {
-        console.log(artist, 'does not appear in any playlists');
         graph.removeNode(artistId);
       }
     }
@@ -198,38 +197,9 @@ var SongSort = React.createClass({
     );
 
     if (this.state.status == 'graphed') {
-      var constructPlaylist = function(playlist) {
-        return _.map(playlist, function(trackData) {
-          return (
-            <tr>
-              <td>{trackData.track}</td>
-              <td>{trackData.artist}</td>
-            </tr>
-          );
-        });
-      }
       var playlists = _.map(this.state.playlists, function(playlist, index) {
-        var playlistElement = constructPlaylist(playlist);
-        return (
-          <div className="panel panel-default">
-            <div className="panel-heading">
-              <h3 className="panel-title">
-                Playlist {index + 1}
-              </h3>
-            </div>
-            <table className="table table-striped">
-              <tdata>
-                <tr>
-                  <td><strong>Song</strong></td>
-                  <td><strong>Artist</strong></td>
-                </tr>
-                {playlistElement}
-              </tdata>
-            </table>
-          </div>
-        );
+        return (<PlaylistPanel playlist={playlist}/>);
       });
-      console.log('playlists element', playlists);
       return (
         <div>
           <GraphView graph={this.state.visGraph} />
