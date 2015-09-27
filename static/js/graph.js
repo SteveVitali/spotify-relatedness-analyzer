@@ -16,6 +16,10 @@ Graph.prototype = {
     this.nodes[id] = _.extend(data || {}, { edges: {} });
   },
 
+  removeNode: function(id) {
+    delete this.nodes[id];
+  },
+
   addEdge: function(fromId, toId, data) {
     if (!this.nodes[fromId]) {
       throw 'Error: no edge with id ' + fromId;
@@ -27,7 +31,7 @@ Graph.prototype = {
     if (!this.nodes[nodeId]) {
       throw 'Error: no edge with id ' + nodeId;
     }
-    return this.nodes[nodeId].edges;
+    return this.nodes[nodeId].edges || {};
   },
 
   // Get weakly connected components of 
@@ -107,3 +111,9 @@ Graph.prototype = {
     };
   }
 };
+
+try {
+  module.exports = Graph;
+} catch(e) {
+  
+}

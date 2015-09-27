@@ -33,8 +33,7 @@ var SongSort = React.createClass({
   },
 
   processTracks: function(trackData, count) {
-    var SONG_LIMIT_FOR_TESTING = 20;
-
+    var MAX_NUMBER_OF_SONGS = 100;
     var artistsMap = this.state.artistsMap;
 
     var that = this;
@@ -62,7 +61,7 @@ var SongSort = React.createClass({
       status: 'fetching'
     });
 
-    if (trackData.next && count < 500) {
+    if (trackData.next && count < MAX_NUMBER_OF_SONGS) {
       Spotify.callSpotify(trackData.next, {}, function(data) {
         that.processTracks(data, count + data.items.length);
       });
@@ -79,7 +78,6 @@ var SongSort = React.createClass({
           that.setState({
             status: 'graphed'
           });
-          that.computePlaylists();
         }, 100);
       });
     }
@@ -101,15 +99,35 @@ var SongSort = React.createClass({
         graph.addEdge(artistId, relatedId);
       }
     }
+    var playlists = this.computePlaylists(graph);
+
+    var artistInPlaylist = function(artist) {
+      for (var i in playlists) {
+        if (_.findWhere(playlists[i], { artist: artist.name })) {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    for (var artistId in this.state.artistsMap) {
+      var artist = this.state.artistsMap[artistId];
+      if (!artistInPlaylist(artist)) {
+        console.log(artist, 'does not appear in any playlists');
+        graph.removeNode(artistId);
+      }
+    }
+
     this.setState({
       graph: graph,
-      visGraph: graph.getVisGraph()
+      visGraph: graph.getVisGraph(),
+      playlists: playlists
     });
   },
 
-  computePlaylists: function() {
+  computePlaylists: function(graph) {
     var MINIMUM_PLAYLIST_SIZE = 8;
-    var components = this.state.graph.getWeaklyConnectedComponents();
+    var components = graph.getWeaklyConnectedComponents();
     var that = this;
     var playlists = [];
     _.each(components, function(component) {
@@ -128,9 +146,7 @@ var SongSort = React.createClass({
         playlists.push(playlist);
       }
     });
-    this.setState({
-      playlists: playlists
-    });
+    return playlists;
   },
 
   populateRelatedArtists: function(callback) {
