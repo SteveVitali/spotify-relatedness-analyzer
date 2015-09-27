@@ -20,6 +20,10 @@ Graph.prototype = {
     delete this.nodes[id];
   },
 
+  updateNode: function(id, data) {
+    this.nodes[id] = _.extend(this.nodes[id] || {}, data || {});
+  },
+
   addEdge: function(fromId, toId, data) {
     if (!this.nodes[fromId]) {
       throw 'Error: no edge with id ' + fromId;

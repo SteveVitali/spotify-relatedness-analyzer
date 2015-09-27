@@ -29,22 +29,22 @@ var PlaylistPanel = React.createClass({
     };
 
     var panelBody = (
+      <div style={{overflow:'scroll',maxHeight:'400px'}}>
       <table className='table table-striped'>
-        <tdata>
-          <tr>
-            <td><strong>Song</strong></td>
-            <td><strong>Artist</strong></td>
-          </tr>
-          {_.map(this.props.playlist, function(trackData) {
-            return (
-              <tr>
-                <td>{trackData.track}</td>
-                <td>{trackData.artist}</td>
-              </tr>
-            );
-          })}
-        </tdata>
+        <tr>
+          <td><strong>Song</strong></td>
+          <td><strong>Artist</strong></td>
+        </tr>
+        {_.map(this.props.playlist, function(trackData) {
+          return (
+            <tr>
+              <td>{trackData.track}</td>
+              <td>{trackData.artist}</td>
+            </tr>
+          );
+        })}
       </table>
+      </div>
     );
 
     return (

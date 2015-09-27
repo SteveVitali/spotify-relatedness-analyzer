@@ -33,7 +33,7 @@ var SongSort = React.createClass({
   },
 
   processTracks: function(trackData, count) {
-    var MAX_NUMBER_OF_SONGS = 100;
+    var MAX_NUMBER_OF_SONGS = 120;
     var artistsMap = this.state.artistsMap;
 
     var that = this;
@@ -103,17 +103,29 @@ var SongSort = React.createClass({
 
     var artistInPlaylist = function(artist) {
       for (var i in playlists) {
-        if (_.findWhere(playlists[i], { artist: artist.name })) {
-          return true;
+        var playlist = playlists[i];
+        for (var j in playlist) {
+          if (playlist[j].artist === artist.name) {
+            return i;
+          }
         }
       }
-      return false;
+      return -1;
     };
+
+    var colors = [
+      '#e67e22', '#e74c3c', '#9b59b6',
+      '#f1c40f', '#bdc3c7', '#3498db'
+    ];
 
     for (var artistId in this.state.artistsMap) {
       var artist = this.state.artistsMap[artistId];
-      if (!artistInPlaylist(artist)) {
+      var playlistNum = artistInPlaylist(artist);
+      if (playlistNum < 0) {
         graph.removeNode(artistId);
+      } else {
+        var color = colors[playlistNum % colors.length];
+        graph.updateNode(artistId, { color: color });
       }
     }
 
