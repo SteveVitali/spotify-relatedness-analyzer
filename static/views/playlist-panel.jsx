@@ -23,6 +23,11 @@ var PlaylistPanel = React.createClass({
   },
 
   render: function() {
+    var linkStyle = {
+      cursor: 'pointer',
+      textDecoration: 'none'
+    };
+
     var panelBody = (
       <table className='table table-striped'>
         <tdata>
@@ -45,7 +50,7 @@ var PlaylistPanel = React.createClass({
     return (
       <div className='panel panel-default'>
         <div className='panel-heading'>
-          <a onClick={this.toggle}>
+          <a onClick={this.toggle} style={linkStyle}>
             <h3 className='panel-title'>
               {this.props.title}
             </h3>
