@@ -114,8 +114,9 @@ var SongSort = React.createClass({
     };
 
     var colors = [
-      '#e67e22', '#e74c3c', '#9b59b6',
-      '#f1c40f', '#bdc3c7', '#3498db'
+      '#e67e22', '#e74c3c', '#9b59b6', 
+      '#f1c40f', '#bdc3c7', '#3498db',
+      '#1abc9c', '#ecf0f1'
     ];
 
     for (var artistId in this.state.artistsMap) {
@@ -137,7 +138,7 @@ var SongSort = React.createClass({
   },
 
   computePlaylists: function(graph) {
-    var MINIMUM_PLAYLIST_SIZE = 8;
+    var MINIMUM_PLAYLIST_SIZE = 6;
     var components = graph.getWeaklyConnectedComponents();
     var that = this;
     var playlists = [];
@@ -208,15 +209,22 @@ var SongSort = React.createClass({
       </button>
     );
 
-    if (this.state.status == 'graphed') {
-      var playlists = _.map(this.state.playlists, function(playlist, index) {
-        return (<PlaylistPanel playlist={playlist}/>);
-      });
+    if (this.state.status == 'graphed') {    
       return (
         <div>
           <GraphView graph={this.state.visGraph} />
           <div className="container">
-            {playlists}
+            <Tabs defaultActiveKey={2} position='left' tabWidth={3}>
+            { _.map(this.state.playlists, function(playlist, index) {
+                var title = 'Playlist (' + playlist.length + ' songs)';
+                return (
+                  <Tab eventKey={index} title={title}>
+                    <PlaylistPanel playlist={playlist}/>
+                  </Tab>
+                );
+              })
+            }
+            </Tabs>
           </div>
         </div>
       );

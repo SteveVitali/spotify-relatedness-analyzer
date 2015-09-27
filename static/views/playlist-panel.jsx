@@ -12,13 +12,13 @@ var PlaylistPanel = React.createClass({
 
   getInitialState: function() {
     return {
-      expanded: false
+      expanded: true
     };
   },
 
   toggle: function() {
     this.setState({
-      expanded: !this.state.expanded
+      expanded: true // !this.state.expanded
     });
   },
 
