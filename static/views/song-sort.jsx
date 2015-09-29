@@ -48,9 +48,7 @@ var SongSort = React.createClass({
             relatedMap: {}
           };
         }
-        artistsMap[artist.id].tracksMap[track.id] = {
-          name: track.name
-        };
+        artistsMap[artist.id].tracksMap[track.id] = track;
       });
     });
 
