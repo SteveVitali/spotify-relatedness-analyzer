@@ -5,7 +5,7 @@ var GraphView = React.createClass({
       id: 'graph',
       style:{
         width: '100%',
-        height: '700px'
+        height: '600px'
       }
     };
   },
