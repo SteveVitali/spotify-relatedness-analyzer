@@ -18,6 +18,7 @@ var SongSort = React.createClass({
   fetchTracks: function() {
     var that = this;
     Spotify.fetchCurrentUserProfile(function(user) {
+      console.log('user', user);
       if (user) {
         Spotify.fetchSavedTracks(function(data) {
           if (data) {
@@ -42,11 +43,10 @@ var SongSort = React.createClass({
 
       _.each(track.artists, function(artist) {
         if (!(artist.id in artistsMap)) {
-          artistsMap[artist.id] = {
-            name: artist.name,
+          artistsMap[artist.id] = _.extend(artist, {
             tracksMap: {},
             relatedMap: {}
-          };
+          });
         }
         artistsMap[artist.id].tracksMap[track.id] = track;
       });
@@ -101,11 +101,9 @@ var SongSort = React.createClass({
 
     var artistInPlaylist = function(artist) {
       for (var i in playlists) {
-        var playlist = playlists[i];
-        for (var j in playlist) {
-          if (playlist[j].artist === artist.name) {
-            return i;
-          }
+        var artistIds = _.pluck(playlists[i].artists, 'id');
+        if (artistIds.indexOf(artist.id) !== -1) {
+          return i;
         }
       }
       return -1;
@@ -141,18 +139,27 @@ var SongSort = React.createClass({
     var that = this;
     var playlists = [];
     _.each(components, function(component) {
-      var playlist = [];
+      var playlist = {
+        tracks: [],
+        artists: [],
+        genresMap: []
+      };
       _.each(component, function(artistId) {
         var artist = that.state.artistsMap[artistId];
         for (var trackId in artist.tracksMap) {
           var track = artist.tracksMap[trackId];
-          playlist.push({
-            track: track.name,
-            artist: artist.name
-          });
+          playlist.tracks.push(track);
         }
+        if (_.keys(artist.tracksMap).length) {
+          playlist.artists.push(artist);
+        }
+        _.each(artist.genres, function(genre) {
+          playlist.genresMap[genre] = playlist.genresMap[genre]
+            ? playlist.genresMap[genre] + 1
+            : 1;
+        });
       });
-      if (playlist.length >= MINIMUM_PLAYLIST_SIZE) {
+      if (playlist.tracks.length >= MINIMUM_PLAYLIST_SIZE) {
         playlists.push(playlist);
       }
     });
@@ -166,20 +173,23 @@ var SongSort = React.createClass({
     var artistsMap = this.state.artistsMap;
 
     _.each(artistIds, function(artistId) {
+
       Spotify.fetchRelatedArtists(artistId, function(relateds) {
+
         _.each(relateds.artists, function(related) {
-          if (related.id in that.state.artistsMap) {
+
+          if (that.state.artistsMap[related.id]) {
             artistsMap[artistId].relatedMap[related.id] = {
-              name: related.name
+              name: related.name,
             };
             artistsMap[related.id].relatedMap[artistId] = {
               name: artistsMap[artistId].name
             };
+            // Add genre data
+            artistsMap[related.id].genres = related.genres;
           }
         });
-        if (++count == artistIds.length) {
-          callback();
-        }
+        ++count == artistIds.length && callback();
       });
     });
     this.setState({
@@ -214,7 +224,8 @@ var SongSort = React.createClass({
           <div className="container">
             <Tabs defaultActiveKey={2} position='left' tabWidth={3}>
             { _.map(this.state.playlists, function(playlist, index) {
-                var title = 'Playlist (' + playlist.length + ' songs)';
+                var numTracks = playlist.tracks.length;
+                var title = 'Playlist (' + numTracks + ' songs)';
                 return (
                   <Tab eventKey={index} title={title}>
                     <PlaylistPanel playlist={playlist}/>
