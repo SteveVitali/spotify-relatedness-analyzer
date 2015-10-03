@@ -67,8 +67,23 @@ var PlaylistPanel = React.createClass({
           {_.map(this.props.playlist.tracks, function(track) {
             return (
               <tr>
-                <td>{track.name}</td>
-                <td>{_.pluck(track.artists, 'name').join(', ')}</td>
+                <td>
+                  <a href={track.uri} style={{ cursor: 'pointer' }}>
+                    {track.name}
+                  </a>
+                </td>
+                <td>
+                  { _.map(track.artists, function(artist, i) {
+                    return (
+                      <span>
+                        <a href={artist.uri} style={{ cursor: 'pointer' }}>
+                          {artist.name}
+                        </a>
+                        {i !== track.artists.length - 1 ? ', ' : ''}
+                      </span>
+                    );
+                  })}
+                </td>
               </tr>
             );
           })}
